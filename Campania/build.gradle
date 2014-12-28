@@ -1,0 +1,42 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.14.2'
+        classpath 'me.champeau.gradle:gradle-groovy-android-plugin:0.3.4'
+    }
+}
+apply plugin: 'com.android.application'
+apply plugin: 'me.champeau.gradle.groovy-android'
+
+android {
+    compileSdkVersion 16
+    buildToolsVersion '21.1.2'
+
+    defaultConfig {
+        applicationId "org.github.willlp.campania"
+        minSdkVersion 14
+        targetSdkVersion 16
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'org.codehaus.groovy:groovy:2.4.0-rc-1:grooid'
+}
+
+androidGroovy {
+    options {
+        sourceCompatibility = '1.7'
+        targetCompatibility = '1.7'
+    }
+}
