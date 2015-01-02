@@ -25,7 +25,7 @@ class Loop implements Runnable {
 
 
     def start() {
-        elements = ElementContainer.start()
+
 
         thread = new Thread(this)
         thread.start()
@@ -36,6 +36,11 @@ class Loop implements Runnable {
         while(running) {
 
             withCanvas { XCanvas canvas ->
+
+                if (!elements) {
+                    elements = ElementContainer.start canvas
+                }
+
                 view.draw canvas
                 elements.drawAll(canvas)
             }

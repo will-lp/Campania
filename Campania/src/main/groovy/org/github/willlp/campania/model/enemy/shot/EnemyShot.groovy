@@ -2,6 +2,7 @@ package org.github.willlp.campania.model.enemy.shot
 
 import groovy.transform.CompileStatic
 import org.github.willlp.campania.event.Event
+import org.github.willlp.campania.event.type.Hit
 import org.github.willlp.campania.model.enemy.shot.Shot
 
 /**
@@ -9,9 +10,4 @@ import org.github.willlp.campania.model.enemy.shot.Shot
  */
 @CompileStatic
 class EnemyShot extends Shot {
-
-    @Override
-    void onEvent(Event event) {
-
-    }
 }

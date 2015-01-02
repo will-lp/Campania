@@ -10,6 +10,7 @@ buildscript {
 apply plugin: 'com.android.application'
 apply plugin: 'me.champeau.gradle.groovy-android'
 
+
 android {
     compileSdkVersion 16
     buildToolsVersion '21.1.2'
@@ -27,6 +28,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
 }
 
 dependencies {
@@ -39,4 +41,6 @@ androidGroovy {
         sourceCompatibility = '1.7'
         targetCompatibility = '1.7'
     }
+
 }
+

@@ -10,8 +10,8 @@ import org.github.willlp.campania.ui.XCanvas
  */
 @CompileStatic
 @ToString
-class Event {
+class Event<T extends EventType, O, S> {
     EventType type
-    Element origin
-    def subject
+    O origin
+    S subject
 }

@@ -9,8 +9,4 @@ import org.github.willlp.campania.model.enemy.shot.Shot
  */
 @CompileStatic
 class HeroShot extends Shot {
-    @Override
-    void onEvent(Event event) {
-
-    }
 }

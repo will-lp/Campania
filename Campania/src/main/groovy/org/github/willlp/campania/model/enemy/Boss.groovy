@@ -7,8 +7,4 @@ import org.github.willlp.campania.model.Element
  * Created by will on 28/12/14.
  */
 class Boss extends Element {
-    @Override
-    void onEvent(Event event) {
-
-    }
 }

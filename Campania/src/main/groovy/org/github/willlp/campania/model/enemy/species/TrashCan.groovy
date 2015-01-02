@@ -1,7 +1,7 @@
 package org.github.willlp.campania.model.enemy.species
 
 /**
- * Created by will on 28/12/14.
+ * Sticks to the top, shoots some garbage and then falls down
  */
 class TrashCan {
     int lives = 10

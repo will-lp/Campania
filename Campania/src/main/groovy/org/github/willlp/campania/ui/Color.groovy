@@ -12,4 +12,5 @@ class Color {
     private Paint getColor(int color) { new Paint(color: color) }
     Paint getBlack() { getColor AColor.BLACK }
     Paint getCyan() { getColor AColor.CYAN }
+    Paint getRed() { getColor AColor.RED }
 }

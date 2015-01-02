@@ -59,9 +59,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     def draw (XCanvas canvas) {
 
         /*
-        Blockinger picks around 30% for controls at each side of the screen
-        and around 40% to scenario canvas at the middle.
-
+        Blockinger picks around 25% for controls at each side of the screen
+        and around 50% to scenario canvas at the middle.
         Let's use the portrait width as a limited landscape scenario width.
          */
 
@@ -84,7 +83,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     def drawLateralControls(XCanvas canvas) {
         def size = canvas.screenSize
-        def controlWidth = ((int) size.x * 0.3f)
+        def controlWidth = Dimension.getControlWidth(canvas)
 
         canvas.drawRect(0, 0, controlWidth, size.y, canvas.color.black)
         canvas.drawRect(size.x - controlWidth, 0, size.x, size.y, canvas.color.black)

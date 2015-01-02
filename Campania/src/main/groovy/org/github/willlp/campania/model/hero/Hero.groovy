@@ -1,6 +1,5 @@
 package org.github.willlp.campania.model.hero
 
-import android.util.Log
 import groovy.transform.CompileStatic
 import org.github.willlp.campania.event.Event
 import org.github.willlp.campania.event.type.Game
@@ -28,32 +27,31 @@ class Hero extends Element {
     Move currentMove
     HeroShotType shotType = HeroShotType.EGGPLANT
 
-    Hero() {
-        eventManager.subscribe(this, Hit.HERO_HIT)
+    ;{
+        eventManager
+                .subscribe(Hit.HERO_HIT, this.&gotHit)
+                .subscribe(Move.LEFT,    this.&setMove)
+                .subscribe(Move.RIGHT,   this.&setMove)
+                .subscribe(Move.STOP,    this.&setMove)
+                .subscribe(Move.SHOOT,   this.&shoot)
     }
 
-    @Override
-    void onEvent(Event event) {
-        switch(event.type) {
-            case Move.LEFT:
-            case Move.RIGHT:
-            case Move.STOP:
-                currentMove = (Move) event.type
-                break
-            case Move.SHOOT:
-                eventManager.raise(new Event(type: Move.SHOOT, origin: this, subject: new HeroShot(type: shotType)))
-                break
-            case Hit.HERO_HIT:
-                if (event.subject instanceof Item) {
-                    applyItem((Item) event.subject)
-                } else {
-                    takeHit((EnemyShot) event.subject)
-                }
-                break
-            default:
-                Log.d TAG, "Unhandled event=$event"
 
+    def setMove(Event event) {
+        currentMove = (Move) event.type
+    }
+
+
+    def gotHit(Event event) {
+        if (event.subject instanceof Item) {
+            applyItem((Item) event.subject)
+        } else {
+            takeHit((EnemyShot) event.subject)
         }
+    }
+
+    def shoot(Event event) {
+        eventManager.raise(new Event(type: Move.SHOOT, origin: this, subject: new HeroShot(type: shotType)))
     }
 
     def applyItem(Item item) {

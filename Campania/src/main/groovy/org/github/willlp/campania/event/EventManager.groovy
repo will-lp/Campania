@@ -1,6 +1,9 @@
 package org.github.willlp.campania.event
 
 import groovy.transform.CompileStatic
+import groovy.transform.stc.ClosureParams
+import groovy.transform.stc.FirstParam
+import groovy.transform.stc.SimpleType
 import org.github.willlp.campania.model.Element
 
 /**
@@ -10,15 +13,18 @@ import org.github.willlp.campania.model.Element
 @Singleton
 class EventManager {
 
-    Map<EventType, List<Element>> events = [:].withDefault { [] }
+    Map<EventType, List<Closure>> events = [:].withDefault { [] }
 
-    EventManager subscribe(Element element, EventType type) {
-        events[type] << element
+    EventManager subscribe(
+            EventType type,
+            @ClosureParams(value=SimpleType, options='org.github.willlp.campania.event.Event') Closure then) {
+        events[type] << then
         this
     }
 
+
     EventManager raise(Event event) {
-        events[event.type]*.onEvent(event)
+        events[event.type]*.call(event)
         this
     }
 

@@ -1,8 +1,12 @@
 package org.github.willlp.campania.event
 
+import android.util.Log
+import groovy.transform.CompileStatic
+
 /**
  * Created by will on 28/12/14.
  */
-interface EventType {
-    String name()
+@CompileStatic
+trait EventType {
+    abstract String name()
 }

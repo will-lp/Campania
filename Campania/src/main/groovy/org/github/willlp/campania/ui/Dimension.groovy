@@ -13,11 +13,16 @@ class Dimension {
     float right
     float bottom
 
+    static int getControlWidth(XCanvas canvas) {
+        def size = canvas.screenSize
+        return (canvas.landscape) ? ((int) (size.x - size.y) / 2) : size.x
+    }
+
     static Dimension scenario(XCanvas canvas) {
         def size = canvas.screenSize
 
         if (canvas.landscape) {
-            def controlWidth = (int) size.x * 0.3f
+            def controlWidth = getControlWidth(canvas)
             new Dimension(left: controlWidth + 1, top: 0, right: size.x - controlWidth - 1, bottom: size.y)
         }
         else {

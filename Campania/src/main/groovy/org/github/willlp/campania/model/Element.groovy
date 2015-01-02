@@ -2,7 +2,6 @@ package org.github.willlp.campania.model
 
 import android.graphics.Paint
 import groovy.transform.CompileStatic
-import org.github.willlp.campania.event.Event
 import org.github.willlp.campania.event.EventManager
 import org.github.willlp.campania.ui.XCanvas
 
@@ -16,18 +15,20 @@ abstract class Element {
     int y
     int height = 20
     int width = 20
-    int speed
-    Paint color // FIXME: should be deleted, just while we don't have images
+    int speed = 1
     EventManager eventManager = EventManager.instance
 
+
+    Paint color // FIXME: should be deleted, just while we don't have images
     Integer getImage() { null } // FIXME: should be abstract, just while we don't have images
+
 
     def draw(XCanvas canvas) {
         if (!image) {
             if (!color) {
                 color = new Paint(color: new Random().nextInt())
             }
-            canvas.drawRect(x, y, width, height, color)
+            canvas.drawRect(x, y, x+width, y+height, color)
         }
         else {
             assert false, "'$this' returned an image, but not implemented yet"
@@ -35,10 +36,14 @@ abstract class Element {
 
     }
 
-    abstract void onEvent(Event event)
-
     boolean collided(Element that) {
+        if ( that.x >= x && that.x <= x + width) {
+            return that.y >= y && that.y <= y + height
+        }
+    }
 
+    String toString() {
+        "Element[x: $x, y: $y, width: $width, height: $height]"
     }
 
 }

@@ -3,7 +3,7 @@ package org.github.willlp.campania.model.enemy.species
 import org.github.willlp.campania.model.enemy.Enemy
 
 /**
- * Simply falls down slightly tilted to the left
+ * Follows you
  */
-class Fish extends Enemy {
+class Rat extends Enemy {
 }

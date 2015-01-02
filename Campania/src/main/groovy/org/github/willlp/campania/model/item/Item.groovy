@@ -9,8 +9,4 @@ import org.github.willlp.campania.model.Element
  */
 @CompileStatic
 abstract class Item extends Element {
-    @Override
-    void onEvent(Event event) {
-
-    }
 }

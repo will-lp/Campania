@@ -4,7 +4,9 @@ import groovy.transform.CompileStatic
 import org.github.willlp.campania.event.Event
 import org.github.willlp.campania.event.type.Creation
 import org.github.willlp.campania.event.type.Hit
+import org.github.willlp.campania.event.type.Score
 import org.github.willlp.campania.model.Element
+import org.github.willlp.campania.ui.XCanvas
 
 /**
  * Created by will on 27/12/14.
@@ -12,17 +14,28 @@ import org.github.willlp.campania.model.Element
 @CompileStatic
 abstract class Enemy extends Element {
 
-    int lives = 1
+    int startingLives = 1
+    int lives = startingLives;
 
-    Enemy() {
-        eventManager.subscribe(this, Hit.ENEMY_HIT)
+    ;{
+        eventManager
+                .subscribe(Hit.ENEMY_HIT, this.&enemyHit)
+                .subscribe(Score.LEVEL_UP, { if ((int) it.subject % 3 == 0) speed++ })
     }
 
-    void onEvent(Event event) {
-        if (event.type == Hit.ENEMY_HIT && event.subject == this) {
+
+    def draw(XCanvas canvas) {
+        y += speed
+        super.draw(canvas)
+    }
+
+
+    def enemyHit(Event event) {
+        if (event.subject == this) {
             if (--lives == 0) {
                 eventManager.raise(new Event(type: Creation.ENEMY_DESTROYED, origin: this))
             }
         }
     }
+
 }
