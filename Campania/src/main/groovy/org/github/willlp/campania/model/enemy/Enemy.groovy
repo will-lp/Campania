@@ -18,9 +18,9 @@ abstract class Enemy extends Element {
     int lives = startingLives;
 
     ;{
-        eventManager
-                .subscribe(Hit.ENEMY_HIT, this.&enemyHit)
-                .subscribe(Score.LEVEL_UP, { if ((int) it.subject % 3 == 0) speed++ })
+        eventManager.subscribe(this)
+                .to(Hit.ENEMY_HIT, this.&enemyHit)
+                .to(Score.LEVEL_UP, { if ((int) it.subject % 3 == 0) speed++ })
     }
 
 

@@ -1,4 +1,4 @@
-package org.github.willlp.campania.model.enemy.shot
+package org.github.willlp.campania.model.shot
 
 import org.github.willlp.campania.model.Element
 

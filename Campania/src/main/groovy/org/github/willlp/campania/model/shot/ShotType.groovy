@@ -1,4 +1,4 @@
-package org.github.willlp.campania.model.enemy.shot
+package org.github.willlp.campania.model.shot
 
 /**
  * Created by will on 28/12/14.

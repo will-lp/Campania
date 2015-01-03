@@ -13,4 +13,6 @@ class Color {
     Paint getBlack() { getColor AColor.BLACK }
     Paint getCyan() { getColor AColor.CYAN }
     Paint getRed() { getColor AColor.RED }
+    Paint getWhite() { getColor AColor.WHITE }
+    Paint getGreen() { getColor AColor.GREEN }
 }

@@ -2,6 +2,7 @@ package org.github.willlp.campania.model
 
 import android.graphics.Paint
 import groovy.transform.CompileStatic
+import groovy.transform.ToString
 import org.github.willlp.campania.event.EventManager
 import org.github.willlp.campania.ui.XCanvas
 
@@ -13,11 +14,10 @@ abstract class Element {
 
     int x
     int y
-    int height = 20
-    int width = 20
+    int height = 30
+    int width = 30
     int speed = 1
     EventManager eventManager = EventManager.instance
-
 
     Paint color // FIXME: should be deleted, just while we don't have images
     Integer getImage() { null } // FIXME: should be abstract, just while we don't have images
@@ -43,7 +43,8 @@ abstract class Element {
     }
 
     String toString() {
-        "Element[x: $x, y: $y, width: $width, height: $height]"
+        "${getClass().simpleName}${properties}"
     }
+
 
 }

@@ -9,5 +9,5 @@ enum Move implements EventType {
     LEFT,
     RIGHT,
     STOP,
-    SHOOT,
+    HERO_SHOOT,
 }

@@ -17,7 +17,8 @@ class GameStatus {
 
     ;{
         eventManager
-                .subscribe(Hit.ENEMY_HIT, this.&enemyHit)
+                .subscribe(this)
+                .to(Hit.ENEMY_HIT, this.&enemyHit)
     }
 
     def enemyHit(Event event) {

@@ -34,7 +34,7 @@ class EnemyFactory {
         Class<? extends Enemy> enemyClazz = (Class) enemyLevelMap.findResult { it.key.contains(min) ? it.value : null }
         Enemy enemy = enemyClazz.newInstance()
 
-        def scene = Dimension.scenario(canvas)
+        def scene = new Dimension(canvas).scenario
         enemy.y = (int) scene.top
         enemy.x = XRandom.intBetween((int) scene.left, (int) scene.right - enemy.width)
 

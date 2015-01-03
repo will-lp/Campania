@@ -6,9 +6,9 @@ import org.github.willlp.campania.event.type.Game
 import org.github.willlp.campania.event.type.Hit
 import org.github.willlp.campania.event.type.Move
 import org.github.willlp.campania.model.Element
-import org.github.willlp.campania.model.enemy.shot.EnemyShot
-import org.github.willlp.campania.model.enemy.shot.HeroShot
-import org.github.willlp.campania.model.enemy.shot.HeroShotType
+import org.github.willlp.campania.model.shot.EnemyShot
+import org.github.willlp.campania.model.shot.HeroShot
+import org.github.willlp.campania.model.shot.HeroShotType
 import org.github.willlp.campania.model.item.Item
 import org.github.willlp.campania.model.item.Life
 import org.github.willlp.campania.model.item.TomatoShot
@@ -23,17 +23,19 @@ class Hero extends Element {
 
     static String TAG = Hero.simpleName
     int lives = 3
+    int maxShots = 2
 
     Move currentMove
     HeroShotType shotType = HeroShotType.EGGPLANT
 
     ;{
         eventManager
-                .subscribe(Hit.HERO_HIT, this.&gotHit)
-                .subscribe(Move.LEFT,    this.&setMove)
-                .subscribe(Move.RIGHT,   this.&setMove)
-                .subscribe(Move.STOP,    this.&setMove)
-                .subscribe(Move.SHOOT,   this.&shoot)
+                .subscribe(this)
+                .to(Hit.HERO_HIT, this.&gotHit)
+                .to(Move.LEFT,    this.&setMove)
+                .to(Move.RIGHT,   this.&setMove)
+                .to(Move.STOP,    this.&setMove)
+                .to(Move.HERO_SHOOT,   this.&shoot)
     }
 
 
@@ -46,13 +48,15 @@ class Hero extends Element {
         if (event.subject instanceof Item) {
             applyItem((Item) event.subject)
         } else {
-            takeHit((EnemyShot) event.subject)
+            takeHit(event)
         }
     }
 
+
     def shoot(Event event) {
-        eventManager.raise(new Event(type: Move.SHOOT, origin: this, subject: new HeroShot(type: shotType)))
+        eventManager.raise(new Event(type: Move.HERO_SHOOT, origin: this, subject: new HeroShot(type: shotType)))
     }
+
 
     def applyItem(Item item) {
         def map = [
@@ -62,7 +66,10 @@ class Hero extends Element {
         map[item.class]()
     }
 
-    def takeHit(EnemyShot enemyShot) {
+    def takeHit(Event e) {
+        shotType = HeroShotType.EGGPLANT
+        if (maxShots > 2) maxShots--
+        if (speed > 3) speed--
         if ( --lives == 0 ) {
             eventManager.raise(new Event(type: Game.GAME_OVER, origin: this))
         }
@@ -70,7 +77,7 @@ class Hero extends Element {
 
     @Override
     def draw(XCanvas canvas) {
-        def dimension = Dimension.scenario(canvas)
+        def dimension = new Dimension(canvas).scenario
 
         if (currentMove == Move.LEFT) {
             if (x - speed < dimension.left) {
@@ -89,6 +96,7 @@ class Hero extends Element {
             // well... stop.
         }
 
+        super.draw canvas
     }
 
 }
