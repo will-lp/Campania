@@ -59,8 +59,8 @@ class Dimension {
                 (e.y + e.height < scenario.top)
     }
 
-    boolean intercept() {
-
+    boolean contains(float x, float y) {
+        return (x >= left && x <= right) && (y >= top && y <= bottom)
     }
 
 }

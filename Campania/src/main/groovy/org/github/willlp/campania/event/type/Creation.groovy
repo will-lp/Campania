@@ -8,5 +8,14 @@ import org.github.willlp.campania.event.EventType
 enum Creation implements EventType {
     ENEMY_CREATED,
     ENEMY_DESTROYED,
-    ITEM_CREATED
+
+    ITEM_CREATED,
+
+    SHOOT_CREATED,
+    SHOOT_DESTROYED,
+
+    SCENARIO_ELEMENT_DESTROYED,
+
+    TIMED_EVENT_CREATED,
+    TIMED_EVENT_DESTROYED
 }

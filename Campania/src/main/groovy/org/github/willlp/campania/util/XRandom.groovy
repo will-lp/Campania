@@ -7,7 +7,16 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class XRandom {
+    static Random r = new Random()
     static int intBetween(int min, int max) {
-        new Random().nextInt(max - min) + min
+        r.nextInt(max - min + 1) + min
+    }
+
+    static int intBetween(float min, float max) {
+        intBetween((int) min, (int) max)
+    }
+
+    static int nextInt(int max) {
+        r.nextInt(max)
     }
 }

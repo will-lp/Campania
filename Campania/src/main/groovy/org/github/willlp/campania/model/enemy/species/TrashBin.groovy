@@ -5,8 +5,10 @@ import android.graphics.Paint
 import org.github.willlp.campania.model.enemy.Enemy
 
 /**
- * Sinusoidal path
+ * Sticks to the top, shoots some garbage and then falls down
  */
-class Crow extends Enemy {
-    @Override int getColor() { Color.BLACK } // FIXME: remove
+class TrashBin extends Enemy {
+    int lives = 10
+
+    @Override int getColor() { Color.BLUE } // FIXME: remove
 }

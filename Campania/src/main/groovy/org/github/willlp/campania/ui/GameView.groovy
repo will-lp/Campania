@@ -1,22 +1,25 @@
 package org.github.willlp.campania.ui
 
 import android.content.Context
+import android.graphics.Rect
 import android.util.Log
-import android.view.MotionEvent
-import android.view.SurfaceHolder
-import android.view.SurfaceView
+import android.view.*
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import org.github.willlp.campania.ElementContainer
 import org.github.willlp.campania.Loop
+import org.github.willlp.campania.event.Event
 import org.github.willlp.campania.event.EventManager
+import org.github.willlp.campania.event.EventType
+import org.github.willlp.campania.event.type.Game
+import org.github.willlp.campania.event.type.Move
 
 /**
  * Created by will on 27/12/14.
  */
 @CompileStatic
-class GameView extends SurfaceView implements SurfaceHolder.Callback {
+class GameView extends SurfaceView implements SurfaceHolder.Callback, View.OnKeyListener {
 
     static String TAG = GameView.simpleName
 
@@ -26,11 +29,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
      */
 
     EventManager eventManager = EventManager.instance
-
     ElementContainer container
     Loop loop
-
     Map<String, Dimension> controls = [:]
+    boolean started = false // because the surface changes on the beginning
 
     GameView(Context context) {
         super(context)
@@ -38,45 +40,99 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         holder.addCallback this
         setFocusable true
+
+        setOnKeyListener(this)
     }
 
+    @Override
+    boolean onKey(View view, int keycode, KeyEvent event) {
+        EventType type
+
+        def buttonUp = (event.action == KeyEvent.ACTION_UP)
+
+        if (event.keyCode in [KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_2]) {
+            type = buttonUp ? Move.STOP : Move.LEFT
+        }
+        else if (event.keyCode in [KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent.KEYCODE_3]) {
+            type = buttonUp ? Move.STOP : Move.RIGHT
+        }
+        else if (buttonUp) {
+            if (event.keyCode in [KeyEvent.KEYCODE_SPACE, KeyEvent.KEYCODE_7]) {
+                type = Move.HERO_SHOOT
+            }
+            else if (event.keyCode in [KeyEvent.KEYCODE_P, KeyEvent.KEYCODE_4]) {
+                type = Game.PAUSE
+            }
+        }
+
+        eventManager.raise new Event(type: type)
+
+        true
+    }
 
     @Override
     boolean onTouchEvent(MotionEvent event) {
+        EventType eventType
+
         Log.d TAG, event.toString()
+
+        def buttonUp = (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_POINTER_UP)
+
+        if (controls.left.contains(event.x, event.y)) {
+            eventType = buttonUp ? Move.STOP : Move.LEFT
+        }
+        else if (controls.right.contains(event.x, event.y)) {
+            eventType = buttonUp ? Move.STOP : Move.RIGHT
+        }
+        else if (buttonUp) {
+            if (controls.shoot.contains(event.x, event.y)) {
+                eventType = Move.HERO_SHOOT
+            } else if (controls.pause.contains(event.x, event.y)) {
+                eventType = Game.PAUSE
+            }
+        }
+
+        eventManager.raise(new Event(type: eventType))
     }
 
 
     @Override
     void surfaceCreated(SurfaceHolder surfaceHolder) {
         Log.d TAG, 'surfaceCreated'
+    }
 
-        withCanvas(surfaceHolder) { canvas ->
-            container = ElementContainer.start canvas
-            loop = new Loop(view: this, container: container).start()
-            if (canvas.landscape) {
-                loadLandscapeControlDimensions(canvas)
-            }
-            else {
-                loadPortraitControlDimensions(canvas)
-            }
+
+    def startElements(XCanvas canvas) {
+        container = ElementContainer.start canvas
+        loop = new Loop(view: this, container: container).start()
+        if (canvas.landscape) {
+            loadLandscapeControlDimensions(canvas)
+        } else {
+            loadPortraitControlDimensions(canvas)
         }
+        started = true
     }
 
 
     @Override
     void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+        Log.d TAG, 'surfaceChanged'
+
         withCanvas(surfaceHolder) { canvas ->
-            if (canvas.landscape) {
-                convertElementsPositionToLandscape(canvas)
-                loadLandscapeControlDimensions(canvas)
+            if (!started) {
+                startElements canvas
             }
             else {
-                convertElementsPositionToPortrait(canvas)
-                loadPortraitControlDimensions(canvas)
+                if (canvas.landscape) {
+                    convertElementsPositionToLandscape(canvas)
+                    loadLandscapeControlDimensions(canvas)
+                } else {
+                    convertElementsPositionToPortrait(canvas)
+                    loadPortraitControlDimensions(canvas)
+                }
+                container.hero.y = (int) new Dimension(canvas).scenario.bottom - container.hero.height
             }
         }
-        Log.d TAG, 'surfaceChanged'
     }
 
 
@@ -153,20 +209,48 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     def drawLateralControls(XCanvas canvas) {
         canvas.drawRect(controls.leftPanel,  canvas.color.black)
         canvas.drawRect(controls.rightPanel, canvas.color.black)
-        canvas.drawRect(controls.left,       canvas.color.white)
-        canvas.drawRect(controls.right,      canvas.color.white)
-        canvas.drawRect(controls.pause,      canvas.color.white)
-        canvas.drawRect(controls.shoot,      canvas.color.red)
+        drawInfoAndCommonControls(canvas)
     }
 
 
     def drawBottomControls(XCanvas canvas) {
-        def size = canvas.screenSize
         canvas.drawRect(controls.panel, canvas.color.black)
+        drawInfoAndCommonControls(canvas)
+    }
+
+
+    def drawInfoAndCommonControls(XCanvas canvas) {
         canvas.drawRect(controls.left,  canvas.color.white)
         canvas.drawRect(controls.right, canvas.color.white)
         canvas.drawRect(controls.pause, canvas.color.white)
         canvas.drawRect(controls.shoot, canvas.color.red)
+
+
+        def closures = {
+            def weakMap = eventManager.subscribers.values()
+            "objects: ${weakMap*.keySet().flatten().size()}"
+        }()
+
+        def texts = [
+                "Max shots: $container.hero.maxShots",
+                "Speed: $container.hero.speed",
+                "Score: $container.gameStatus.score",
+                "Lives: $container.hero.lives",
+                "x: $canvas.screenSize.x, y: $canvas.screenSize.y",
+                "allElements size: ${container.allElements.size()}",
+                "eventsMap.size: ${eventManager.subscribers.size()}, ${closures}"]
+
+
+        def yIndex = controls.info.top
+        def white = canvas.color.white
+        white.setTextSize(20f)
+        def rect = new Rect()
+        white.getTextBounds(texts.head().toString(), 0, 1, rect)
+
+        for (text in texts) {
+            canvas.drawText( text, controls.info.left, yIndex, canvas.color.white )
+            yIndex += rect.height()
+        }
     }
 
 
@@ -176,7 +260,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         def controlWidth = dimension.controlPanelWidth
         def scenario = dimension.scenario
         def buttonWidth = (int) (controlWidth - 30) / 2
-        def buttonHeight = (int) (size.y + 20) / 2
+        def buttonHeight = (int) size.y / 2
 
         controls.leftPanel = new Dimension(
                 left   : 0,
@@ -192,27 +276,33 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         controls.left = new Dimension(
                 left   : 10,
-                top    : 10,
+                top    : size.y - buttonHeight,
                 right  : buttonWidth + 10,
-                bottom : buttonHeight)
+                bottom : size.y - 10)
 
         controls.right = new Dimension(
                 left   : buttonWidth + 20,
-                top    : 10,
+                top    : size.y - buttonHeight,
                 right  : buttonWidth * 2 + 20,
-                bottom : buttonHeight)
-
-        controls.pause = new Dimension(
-                left   : 10,
-                top    : buttonHeight  + 20,
-                right  : buttonWidth * 2 + 20,
-                bottom : (int) buttonHeight + buttonHeight / 3)
+                bottom : size.y - 10)
 
         controls.shoot = new Dimension(
                 left   : scenario.right + 10,
+                top    : size.y - buttonHeight,
+                right  : size.x - 10,
+                bottom : size.y - 10)
+
+        controls.pause = new Dimension(
+                left   : size.x - buttonWidth - 10,
+                top    : controls.shoot.top - 80,
+                right  : controls.shoot.right,
+                bottom : controls.shoot.top - 10)
+
+        controls.info = new Dimension(
+                left   : 10,
                 top    : 10,
-                right  : scenario.right + buttonWidth * 2 + 20,
-                bottom : buttonHeight)
+                right  : -1, // not used
+                bottom : -1) // not used
     }
 
 
@@ -223,8 +313,6 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         def scenario = dimension.scenario
         def buttonWidth = (int) (controlWidth - 30) / 2
         def buttonHeight = (int) (size.y - 20) / 2
-
-        println "scenario=$scenario"
 
         controls.panel = new Dimension(
                 left   : 0,
@@ -255,6 +343,12 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 top    : scenario.bottom + 10,
                 right  : size.x - 10,
                 bottom : scenario.bottom + 10 + buttonHeight)
+
+        controls.info = new Dimension(
+                left   : -1,
+                top    : -1,
+                right  : -1,
+                bottom : -1)
     }
 
 

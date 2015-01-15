@@ -1,17 +1,16 @@
 package org.github.willlp.campania.model.hero
 
+import android.graphics.Color
+import android.util.Log
 import groovy.transform.CompileStatic
 import org.github.willlp.campania.event.Event
+import org.github.willlp.campania.event.type.Creation
 import org.github.willlp.campania.event.type.Game
 import org.github.willlp.campania.event.type.Hit
 import org.github.willlp.campania.event.type.Move
 import org.github.willlp.campania.model.Element
-import org.github.willlp.campania.model.shot.EnemyShot
-import org.github.willlp.campania.model.shot.HeroShot
-import org.github.willlp.campania.model.shot.HeroShotType
 import org.github.willlp.campania.model.item.Item
-import org.github.willlp.campania.model.item.Life
-import org.github.willlp.campania.model.item.TomatoShot
+import org.github.willlp.campania.model.item.ItemType
 import org.github.willlp.campania.ui.Dimension
 import org.github.willlp.campania.ui.XCanvas
 
@@ -28,14 +27,18 @@ class Hero extends Element {
     Move currentMove
     HeroShotType shotType = HeroShotType.EGGPLANT
 
+    @Override int getColor() { Color.rgb(0x12, 0x9C, 0x00) }
+
+
     ;{
+        speed = 3
         eventManager
                 .subscribe(this)
                 .to(Hit.HERO_HIT, this.&gotHit)
                 .to(Move.LEFT,    this.&setMove)
                 .to(Move.RIGHT,   this.&setMove)
                 .to(Move.STOP,    this.&setMove)
-                .to(Move.HERO_SHOOT,   this.&shoot)
+                .to(Move.HERO_SHOOT, this.&shoot)
     }
 
 
@@ -45,8 +48,8 @@ class Hero extends Element {
 
 
     def gotHit(Event event) {
-        if (event.subject instanceof Item) {
-            applyItem((Item) event.subject)
+        if (event.origin instanceof Item) {
+            applyItem((Item) event.origin)
         } else {
             takeHit(event)
         }
@@ -54,17 +57,26 @@ class Hero extends Element {
 
 
     def shoot(Event event) {
-        eventManager.raise(new Event(type: Move.HERO_SHOOT, origin: this, subject: new HeroShot(type: shotType)))
+        def shot = HeroShotFactory.createShot(this)
+        eventManager.raise(new Event(
+                type: Creation.SHOOT_CREATED,
+                origin: this,
+                subject: shot))
     }
 
 
     def applyItem(Item item) {
         def map = [
-            (Life): { lives++ },
-            (TomatoShot) : { shotType = HeroShotType.TOMATO },
-        ].withDefault { throw new RuntimeException("No handling for item $item") }
-        map[item.class]()
+                (ItemType.LIFE)            : { lives++ },
+                (ItemType.TOMATO_SHOT)     : { shotType = HeroShotType.TOMATO },
+                (ItemType.EXTRA_SHOT)      : { maxShots = Math.min(maxShots + 1, 9) },
+                (ItemType.LEMON_SHOT)      : { shotType = HeroShotType.LEMON },
+                (ItemType.SPEED)           : { speed    = Math.min(speed + 1, 9) },
+                (ItemType.WATERMELON_SHOT) : { shotType = HeroShotType.WATERMELON },
+        ]
+        map[item.type]?.call()
     }
+
 
     def takeHit(Event e) {
         shotType = HeroShotType.EGGPLANT
@@ -76,7 +88,7 @@ class Hero extends Element {
     }
 
     @Override
-    def draw(XCanvas canvas) {
+    def move(XCanvas canvas) {
         def dimension = new Dimension(canvas).scenario
 
         if (currentMove == Move.LEFT) {
@@ -93,10 +105,9 @@ class Hero extends Element {
             }
         }
         else if (currentMove == Move.STOP) {
-            // well... stop.
+            // well... stop moving
         }
 
-        super.draw canvas
     }
 
 }

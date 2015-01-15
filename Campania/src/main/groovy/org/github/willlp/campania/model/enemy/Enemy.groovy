@@ -20,20 +20,19 @@ abstract class Enemy extends Element {
     ;{
         eventManager.subscribe(this)
                 .to(Hit.ENEMY_HIT, this.&enemyHit)
-                .to(Score.LEVEL_UP, { if ((int) it.subject % 3 == 0) speed++ })
+
     }
 
 
-    def draw(XCanvas canvas) {
+    def move(XCanvas canvas) {
         y += speed
-        super.draw(canvas)
     }
 
 
     def enemyHit(Event event) {
         if (event.subject == this) {
             if (--lives == 0) {
-                eventManager.raise(new Event(type: Creation.ENEMY_DESTROYED, origin: this))
+                eventManager.raise(new Event(type: Creation.ENEMY_DESTROYED, origin: event.origin, subject: this))
             }
         }
     }

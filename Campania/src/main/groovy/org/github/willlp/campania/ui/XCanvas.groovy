@@ -39,6 +39,7 @@ class XCanvas {
         context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     }
 
+
     void drawRect(Dimension d, Paint paint) {
         canvas.drawRect(d.left, d.top, d.right, d.bottom, paint)
     }

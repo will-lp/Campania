@@ -8,5 +8,6 @@ import org.github.willlp.campania.event.EventType
 enum Game implements EventType {
     GAME_OVER,
     START,
-    PAUSE
+    PAUSE,
+    ELEMENT_REMOVED
 }

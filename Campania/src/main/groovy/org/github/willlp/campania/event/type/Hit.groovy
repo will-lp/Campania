@@ -7,5 +7,5 @@ import org.github.willlp.campania.event.EventType
  */
 enum Hit implements EventType {
     ENEMY_HIT,
-    HERO_HIT
+    HERO_HIT,
 }

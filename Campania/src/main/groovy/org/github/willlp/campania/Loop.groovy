@@ -2,6 +2,8 @@ package org.github.willlp.campania
 
 import groovy.transform.CompileStatic
 import org.github.willlp.campania.event.EventManager
+import org.github.willlp.campania.event.type.Game
+import org.github.willlp.campania.model.timed.TimedEventManager
 import org.github.willlp.campania.ui.GameView
 
 /**
@@ -16,9 +18,17 @@ class Loop implements Runnable {
     ElementContainer container
 
     boolean running = true
+    boolean paused = false
     Thread thread
     EventManager eventManager = EventManager.instance
+    TimedEventManager timedEventManager = new TimedEventManager()
 
+
+    ;{
+        eventManager
+                .subscribe(this)
+                .to(Game.PAUSE, { paused = !paused })
+    }
 
     Loop start() {
         thread = new Thread(this)
@@ -30,12 +40,17 @@ class Loop implements Runnable {
     void run() {
         while(running) {
 
-            view.withCanvas { canvas ->
-                view.drawScenarioAndControls canvas
-                container.drawAll(canvas)
+            if (paused) {
+                Thread.sleep 1000
             }
+            else {
+                view.withCanvas { canvas ->
+                    view.drawScenarioAndControls canvas
+                    container.drawAll(canvas)
+                }
 
-            Thread.sleep 40
+                Thread.sleep 35
+            }
         }
     }
 

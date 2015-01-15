@@ -5,8 +5,8 @@ import android.graphics.Paint
 import org.github.willlp.campania.model.enemy.Enemy
 
 /**
- * Sinusoidal path
+ * Bounces randomly a bit on the screen
  */
-class Crow extends Enemy {
-    @Override int getColor() { Color.BLACK } // FIXME: remove
+class Can extends Enemy {
+    @Override int getColor() { Color.RED } // FIXME: remove
 }
